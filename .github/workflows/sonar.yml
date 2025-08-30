@@ -9,27 +9,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Клонируем репозиторий с полной историей (обязательно для Sonar)
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Важно: Sonar требует всю историю
 
+      # 2. Устанавливаем Node.js (версия 18)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
+      # 3. Устанавливаем зависимости
       - name: Install dependencies
         run: npm ci
 
+      # 4. Запускаем анализ кода через официальный Sonar-сканер
       - name: Run SonarQube Scanner
         uses: sonarsource/sonarqube-scan-action@v3
         env:
+          # Передаём секреты (должны быть в GitHub Secrets)
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
+          # Используем точные ключи из SonarCloud
           projectKey: Bal8080_frontend-project-11
           organization: bal8080
+
+          # Режим: CLI (командная строка)
           scannerMode: cli
+
+          # Дополнительные параметры анализа
           cliProps: |
+            # Кодировка
             sonar.sourceEncoding=UTF-8
-            sonar.projectBaseDir=.
+
+            # Папки с исходным кодом
+            sonar.sources=src
+
+            # Включаем анализ package.json, README.md, конфигов
+            sonar.inclusions=src/**,package.json,README.md,eslint.config.js,vite.config.js
+
+            # Не анализируем node_modules и временные файлы
+            sonar.exclusions=**/node_modules/**
+
+            # Включаем анализ JavaScript/TypeScript
+            sonar.javascript.lcov.reportPaths=coverage/lcov.info
+            sonar.typescript.lcov.reportPaths=coverage/lcov.info

@@ -6,5 +6,5 @@ RSS
 🌐 **Live Demo**: [https://frontend-project-11-gamma-topaz.vercel.app/](https://frontend-project-11-gamma-topaz.vercel.app/)
 
 ![CI](https://github.com/Bal8080/frontend-project-11/actions/workflows/ci.yml/badge.svg)
-![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/frontend-project-11?server=https%3A%2F%2Fsonarcloud.io&style=flat-square)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Bal8080_frontend-project-11&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Bal8080_frontend-project-11)
 ![GitHub](https://img.shields.io/github/last-commit/Bal8080/frontend-project-11?style=flat-square)
