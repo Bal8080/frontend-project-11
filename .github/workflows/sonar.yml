@@ -1,0 +1,35 @@
+name: SonarQube
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  sonarqube:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run SonarQube Scanner
+        uses: sonarsource/sonarqube-scan-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          projectKey: frontend-project-11
+          organization: bal8080
+          scannerMode: cli
+          cliProps: |
+            sonar.sourceEncoding=UTF-8
+            sonar.projectBaseDir=.
