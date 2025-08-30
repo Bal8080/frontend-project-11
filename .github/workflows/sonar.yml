@@ -27,7 +27,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
-          projectKey: frontend-project-11
+          projectKey: Bal8080_frontend-project-11
           organization: bal8080
           scannerMode: cli
           cliProps: |
