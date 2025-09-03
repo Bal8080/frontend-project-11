@@ -1,7 +1,9 @@
 import { state } from "./state.js";
-import { buildValidator } from "./validators.js";
+import { buildValidator, setI18n } from "./validators.js";
 
-export const validateAndAddFeed = (url) => {
+export const validateAndAddFeed = (url, i18n) => {
+    setI18n(i18n);
+    
     const validator = buildValidator(state.feeds);
 
     return validator.validate({ url }, { abortEarly: false})
