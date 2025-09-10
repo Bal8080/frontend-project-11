@@ -1,7 +1,9 @@
 import onChange from "on-change";
 
 const initialState = {
-    feeds: [],
+    feeds: {},
+    posts: {},
+    feedsOrder: [],
     form: {
         error: null,
         submitting: false,
@@ -9,8 +11,12 @@ const initialState = {
     },
 }
 
-const createState = () => onChange(initialState, (path, value, oldValue) => {
+const createState = () => onChange(
+    initialState,
+    (path, value) => {
     console.log(`State changed: ${path} = ${value}`);
-});
+    },
+    { isShallow: false },
+);
 
 export const state = createState();
