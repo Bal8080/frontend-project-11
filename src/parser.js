@@ -3,7 +3,7 @@ export const parseRSS = (xmlString) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlString, 'text/xml');
 
-    console.log(doc);
+    console.log(`DOC!!!\n::${doc}`);
     
     const errorNode = doc.querySelector('parsererror');
     if (errorNode) {

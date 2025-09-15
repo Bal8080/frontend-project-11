@@ -1,8 +1,9 @@
 import onChange from 'on-change';
-import { state } from "./state";
+import { initialState } from "./state";
 import { validateAndAddFeed } from "./rss";
 import createI18n from './i18n.js';
 
+export let state = null;
 window.state = state;
 
 const runApp = (i18n) => {
@@ -10,6 +11,11 @@ const runApp = (i18n) => {
   const urlInput = document.getElementById('url-input');
   const feedback = document.querySelector('.feedback');
   const resultsSection = document.querySelector('.section-results');
+
+  state = onChange(initialState, () => {
+    console.log('CHANGED!!!');
+    renderFeedsAndPosts();
+  }, { isShallow: false });
   
   const renderError = (errorKey) => {
       urlInput.classList.add('is-invalid');
@@ -28,39 +34,108 @@ const runApp = (i18n) => {
   };
 
   const renderFeedsAndPosts = () => {
-    resultsSection.innerHTML = '';
+    // resultsSection.innerHTML = '';
+    const postsListEl = document.getElementById('posts-list');
+    const feedsContainerEl = document.getElementById('feeds-container');
 
-    if (state.feedsOrder.length === 0) return;
+    if (postsListEl) postsListEl.innerHTML = '';
+    if (feedsContainerEl) feedsContainerEl.innerHTML = '';
 
-    const feedElements = state.feedsOrder
-      .map((feedId) => {
-        const feed = state.feeds[feedId];
-        if (!feed) return null;
+    // if (state.feedsOrder.length === 0) return;
 
-        const posts = Object.values(state.posts)
-          .filter((post) => post.feedId === feedId)
-          .map((post) => 
-            `<li class="list-group-item">
-                <a href="${post.link}" target="_blank" rel="noopener noreferrer">
-                  ${post.title}
-                </a>
-              </li>`
-          )
-          .join('');
+    // const feedElements = state.feedsOrder
+    //   .map((feedId) => {
+    //     const feed = state.feeds[feedId];
+    //     if (!feed) return null;
 
-          const feedEl = document.createElement('div');
-          feedEl.className = 'mb-5 p-4 bg-light rounded shadow-sm';
-          feedEl.innerHTML = `
-            <h3 class="h4 text-primary">${feed.title}</h3>
-            <p class="text-muted">${feed.description}</p>
-            <ul class="list-group list-group-flush">${posts}</ul>
+    //     const posts = Object.values(state.posts)
+    //       .filter((post) => post.feedId === feedId)
+    //       .map((post) => 
+    //         `<li class="list-group-item">
+    //             <a href="${post.link}" target="_blank" rel="noopener noreferrer">
+    //               ${post.title}
+    //             </a>
+    //           </li>`
+    //       )
+    //       .join('');
+
+    //       const feedEl = document.createElement('div');
+    //       feedEl.className = 'mb-5 p-4 bg-light rounded shadow-sm';
+    //       feedEl.innerHTML = `
+    //         <h3 class="h4 text-primary">${feed.title}</h3>
+    //         <p class="text-muted">${feed.description}</p>
+    //         <ul class="list-group list-group-flush">${posts}</ul>
+    //       `;
+
+    //       return feedEl;
+    //   })
+    //   .filter(Boolean);
+
+    // feedElements.forEach((el) => resultsSection.appendChild(el));
+
+    if (postsListEl) {
+    const posts = Object.values(state.posts);
+
+    const sortedPosts = posts
+      .sort((a, b) => new Date(b.published || b.pubDate) - new Date(a.published || a.pubDate));
+
+    const postElements = sortedPosts.length > 0
+      ? sortedPosts
+      : [{ title: 'Нет постов', link: '#', published: null, isPlaceholder: true }];
+
+    const postsFragment = postElements
+      .reduce((fragment, post) => {
+        const li = document.createElement('li');
+        if (post.isPlaceholder) {
+          li.className = 'list-group-item text-muted text-center';
+          li.textContent = post.title;
+        } else {
+          li.className = 'list-group-item d-flex justify-content-between align-items-center';
+          li.innerHTML = `
+            <a href="${post.link}" target="_blank" rel="noopener noreferrer">
+              ${post.title}
+            </a>
+            <small class="text-muted">
+              ${new Date(post.published).toLocaleDateString()}
+            </small>
           `;
+        }
+        fragment.appendChild(li);
+        return fragment;
+      }, document.createDocumentFragment());
 
-          return feedEl;
-      })
+    postsListEl.appendChild(postsFragment);
+    };
+
+    if (feedsContainerEl) {
+    const validFeeds = state.feedsOrder
+      .map(id => state.feeds[id])
       .filter(Boolean);
 
-    feedElements.forEach((el) => resultsSection.appendChild(el));
+    const feedElements = validFeeds.length > 0
+      ? validFeeds
+      : [{ title: 'Нет фидов', description: '', url: '', isPlaceholder: true }];
+
+    const feedsFragment = feedElements
+      .reduce((fragment, feed) => {
+        const div = document.createElement('div');
+        if (feed.isPlaceholder) {
+          div.className = 'text-muted small text-center p-2';
+          div.textContent = feed.title;
+        } else {
+          div.className = 'p-3 mb-3 bg-white border rounded shadow-sm';
+          div.innerHTML = `
+            <h3 class="h6 mb-1 text-primary">${feed.title}</h3>
+            <p class="text-muted small mb-1">${feed.description}</p>
+            <small class="text-secondary">${feed.url}</small>
+          `;
+        }
+        fragment.appendChild(div);
+        return fragment;
+      }, document.createDocumentFragment());
+
+    feedsContainerEl.appendChild(feedsFragment);
+  }
   };
   
   const handleSubmit = (e) => {
@@ -71,11 +146,9 @@ const runApp = (i18n) => {
       clearError();
   
       const url = urlInput.value.trim();
-      console.log(url);
-  
+      
       validateAndAddFeed(url, i18n)
         .then((result) => {
-          console.log(result)
           if (result.valid) {
               resetForm();
               console.log('Feed added:', url);
@@ -94,14 +167,17 @@ const runApp = (i18n) => {
         });
   };
 
-  onChange(state, () => {
-    renderFeedsAndPosts();
-  }, { isShallow: false });
+  // onChange(state, () => {
+  //   console.log('CHANGED!!!');
+  //   renderFeedsAndPosts();
+  // }, { isShallow: false });
 
   renderFeedsAndPosts();
 
   form.addEventListener('submit', handleSubmit);
 };
+
+
 
 const i18n = createI18n();
 runApp(i18n);

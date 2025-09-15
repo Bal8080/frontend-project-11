@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { parseRSS } from './parser.js';
-import { state } from "./state.js";
+import { state } from "./index.js";
 import { buildValidator, setI18n } from "./validators.js";
 
-const ALL_ORIGINS_URL = 'https://api.allorigins.win/get';
+const ALL_ORIGINS_URL = 'https://allorigins.hexlet.app/get';
 
 const generateId = (str) => {
   let hash = 0;
@@ -23,32 +23,17 @@ export const validateAndAddFeed = (url, i18n) => {
         const proxyUrl = `${ALL_ORIGINS_URL}?url=${encodeURIComponent(url)}&cache=false`;
         return axios.get(proxyUrl)
           .then(response => {
+            console.log(`RESPONSE!!! ${Object.keys(response)}`);
             const { contents } = response.data;
-            console.log(contents);
+            console.log(`CONTENTS!!! ${contents}`);
             
             if (!contents) {
               throw new Error('Empty response from server');
             }
 
-            // let xmlString;
-            // if (contents.startsWith('data:')) {
-            //   try {
-            //     const base64Data = contents.split(',')[1];
-            //     console.log(base64Data);
-            //     if (!base64Data) {
-            //       throw new Error('Invalid Data URL format');
-            //     }
-            //     xmlString = atob(base64Data);
-            //   } catch (e) {
-            //     throw new Error('Failed to decode base64 content');
-            //   }
-            // } else {
-            //   xmlString = contents;
-            // }
-
             console.log('START!!!');
             const parsed = parseRSS(contents);
-            console.log('FINISH!!!');
+            console.log(`PARSED!!!! ${parsed}`);
             
             const feedId = parsed.feed.id || generateId(url);
 
@@ -69,28 +54,26 @@ export const validateAndAddFeed = (url, i18n) => {
               title: post.title,
               link: post.link,
               published: post.published,
-              feedId,cxmlStrin
+              feedId,
             }));
 
-            state.feeds = {
-              ...state.feeds,
-              [feedId]: normalizedFeed,
-            };
+            Object.assign(state.feeds, { [feedId]: normalizedFeed });
 
-            state.posts = {
-              ...state.posts,
-              ...normalizedPosts.reduce((acc, post) => {
+            Object.assign(
+              state.posts,
+              normalizedPosts.reduce((acc, post) => {
                 acc[post.id] = post;
                 return acc;
-              }, {}),
-            };
+              }, {})
+            );
 
-            state.feedsOrder = [feedId, ...state.feedsOrder];
+            state.feedsOrder.unshift(feedId);
 
             return { valid: true, errors: null };
           })
           .catch(err => {
             let errorMessage = i18n.t('errors.network', 'Ошибка сети');
+            console.log(err);
             if (err.message === 'Invalid RSS') {
               errorMessage = 'Неверный формат RSS';
             } else if (err.message === 'RSS уже существует') {
