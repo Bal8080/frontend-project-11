@@ -1,6 +1,6 @@
 import onChange from 'on-change';
 import { initialState } from "./state";
-import { validateAndAddFeed } from "./rss";
+import { validateAndAddFeed, startAutoUpdate } from "./rss";
 import createI18n from './i18n.js';
 
 export let state = null;
@@ -175,6 +175,8 @@ const runApp = (i18n) => {
   renderFeedsAndPosts();
 
   form.addEventListener('submit', handleSubmit);
+
+  startAutoUpdate(i18n);
 };
 
 
