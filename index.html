@@ -39,7 +39,7 @@
               </div>
             </div>
           </form>
-          <p class="mt-2 mb-0 text-muted">
+          <p class="mt-2 mb-0 text-secondary">
             Пример: https://lorem-rss.hexlet.app/feed
           </p>
           <p class="feedback m-0 position-absolute small text-danger"></p>
@@ -59,6 +59,21 @@
         </div>
       </div>
     </section>
+
+    <div class="modal fade" id="postModal" tabindex="-1"     aria-labelledby="postModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="postModalLabel">Заголовок</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"     aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p id="postDescription">Описание...</p>
+            <a id="postLink" target="_blank" class="btn btn-primary">Перейти к посту</a>
+          </div>
+        </div>
+      </div>
+    </div>
   
     <script type="module" src="/src/main.js"></script>
   </body>

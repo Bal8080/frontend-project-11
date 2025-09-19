@@ -1,9 +1,10 @@
 export const parseRSS = (xmlString) => {
     console.log('PARSE!!!');
+    try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlString, 'text/xml');
 
-    console.log(`DOC!!!\n::${doc}`);
+    console.log(doc);
     
     const errorNode = doc.querySelector('parsererror');
     if (errorNode) {
@@ -20,12 +21,14 @@ export const parseRSS = (xmlString) => {
         const link = item.querySelector('link')?.textContent ?? '#';
         const published = item.querySelector('pubDate')?.textContent ?? '';
         const guid = item.querySelector('guid')?.textContent ?? link;
+        const description = item.querySelector('description')?.textContent ?? '';
 
         return {
             id: guid,
             title,
             link,
             published,
+            description,
         };
     });
 
@@ -37,4 +40,8 @@ export const parseRSS = (xmlString) => {
         },
         posts,
     };
+    } catch (err) {
+    console.error('💥 ОШИБКА в parseRSS:', err);
+    throw err; // важно — пробрасываем дальше
+  }
 };

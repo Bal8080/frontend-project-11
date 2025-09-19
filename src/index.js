@@ -3,8 +3,7 @@ import { initialState } from "./state";
 import { validateAndAddFeed, startAutoUpdate } from "./rss";
 import createI18n from './i18n.js';
 
-export let state = null;
-window.state = state;
+let state = null;
 
 const runApp = (i18n) => {
   const form = document.querySelector('.rss-form');
@@ -34,44 +33,11 @@ const runApp = (i18n) => {
   };
 
   const renderFeedsAndPosts = () => {
-    // resultsSection.innerHTML = '';
     const postsListEl = document.getElementById('posts-list');
     const feedsContainerEl = document.getElementById('feeds-container');
 
     if (postsListEl) postsListEl.innerHTML = '';
     if (feedsContainerEl) feedsContainerEl.innerHTML = '';
-
-    // if (state.feedsOrder.length === 0) return;
-
-    // const feedElements = state.feedsOrder
-    //   .map((feedId) => {
-    //     const feed = state.feeds[feedId];
-    //     if (!feed) return null;
-
-    //     const posts = Object.values(state.posts)
-    //       .filter((post) => post.feedId === feedId)
-    //       .map((post) => 
-    //         `<li class="list-group-item">
-    //             <a href="${post.link}" target="_blank" rel="noopener noreferrer">
-    //               ${post.title}
-    //             </a>
-    //           </li>`
-    //       )
-    //       .join('');
-
-    //       const feedEl = document.createElement('div');
-    //       feedEl.className = 'mb-5 p-4 bg-light rounded shadow-sm';
-    //       feedEl.innerHTML = `
-    //         <h3 class="h4 text-primary">${feed.title}</h3>
-    //         <p class="text-muted">${feed.description}</p>
-    //         <ul class="list-group list-group-flush">${posts}</ul>
-    //       `;
-
-    //       return feedEl;
-    //   })
-    //   .filter(Boolean);
-
-    // feedElements.forEach((el) => resultsSection.appendChild(el));
 
     if (postsListEl) {
     const posts = Object.values(state.posts);
@@ -91,13 +57,23 @@ const runApp = (i18n) => {
           li.textContent = post.title;
         } else {
           li.className = 'list-group-item d-flex justify-content-between align-items-center';
+          const titleClass = post.read ? 'fw-normal' : 'fw-bold';
           li.innerHTML = `
-            <a href="${post.link}" target="_blank" rel="noopener noreferrer">
+            <a href="${post.link}" target="_blank" rel="noopener noreferrer" class="${titleClass} me-auto">
               ${post.title}
             </a>
             <small class="text-muted">
               ${new Date(post.published).toLocaleDateString()}
             </small>
+            <button 
+              type="button"
+              class="btn btn-outline-primary btn-sm ms-2"
+              data-id="${post.id}"
+              data-bs-toggle="modal"
+              data-bs-target="#postModal"
+            >
+              👁️
+            </button>
           `;
         }
         fragment.appendChild(li);
@@ -147,7 +123,7 @@ const runApp = (i18n) => {
   
       const url = urlInput.value.trim();
       
-      validateAndAddFeed(url, i18n)
+      validateAndAddFeed(url, i18n, state)
         .then((result) => {
           if (result.valid) {
               resetForm();
@@ -167,19 +143,38 @@ const runApp = (i18n) => {
         });
   };
 
-  // onChange(state, () => {
-  //   console.log('CHANGED!!!');
-  //   renderFeedsAndPosts();
-  // }, { isShallow: false });
+  const postsListEl = document.getElementById('posts-list');
+  if (postsListEl) {
+    postsListEl.addEventListener('click', (e) => {
+      const button = e.target.closest('[data-id]');
+      if (!button) return;
+
+      const postId = button.dataset.id;
+      const post = state.posts[postId];
+      if (!post) return;
+
+      // 🔹 Помечаем как прочитанный
+      post.read = true;
+
+      // 🔹 Обновляем стиль ссылки на лету
+      const link = button.parentElement.querySelector('a');
+      link.classList.remove('fw-bold');
+      link.classList.add('fw-normal');
+
+      // 🔹 Заполняем модальное окно
+      document.getElementById('postModalLabel').textContent = post.title;
+      document.getElementById('postDescription').textContent = post.description || 'Нет описания';
+      document.getElementById('postLink').href = post.link;
+    });
+  }
 
   renderFeedsAndPosts();
+  window.state = state;
 
   form.addEventListener('submit', handleSubmit);
 
-  startAutoUpdate(i18n);
+  startAutoUpdate(i18n, state);
 };
-
-
 
 const i18n = createI18n();
 runApp(i18n);
