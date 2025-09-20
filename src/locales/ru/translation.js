@@ -6,4 +6,4 @@ export default {
     network: 'Ошибка сети',
     unknown: 'Произошла ошибка',
   },
-};
+}

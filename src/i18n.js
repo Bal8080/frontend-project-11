@@ -1,8 +1,8 @@
-import i18next from 'i18next';
-import translation from './locales/ru/translation.js';
+import i18next from 'i18next'
+import translation from './locales/ru/translation.js'
 
 const createI18n = () => {
-  const i18n = i18next.createInstance();
+  const i18n = i18next.createInstance()
 
   i18n.init({
     lng: 'ru',
@@ -15,9 +15,9 @@ const createI18n = () => {
     interpolation: {
       escapeValue: false,
     },
-  });
+  })
 
-  return i18n;
-};
+  return i18n
+}
 
-export default createI18n;
+export default createI18n
