@@ -9,7 +9,7 @@ const runApp = (i18n) => {
   const form = document.querySelector('.rss-form')
   const urlInput = document.getElementById('url-input')
   const feedback = document.querySelector('.feedback')
-  
+
   state = onChange(initialState, () => {
     console.log('CHANGED!!!')
     renderFeedsAndPosts()
