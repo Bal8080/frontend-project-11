@@ -21,7 +21,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run SonarCloud Scanner
-        uses: sonarsource/sonarcloud-scan-action@v3
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          # Опционально: если хотите указать параметры
+          args: >
+            -Dsonar.projectKey=Bal8080_frontend-project-11
+            -Dsonar.organization=bal8080
+            -Dsonar.sources=src
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
